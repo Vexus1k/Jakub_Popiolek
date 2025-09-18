@@ -1,59 +1,92 @@
-# PostsApp
+# Posts – Angular 20 (signals, zoneless, Tailwind v4)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+Aplikacja rekrutacyjna prezentująca listę postów z API jsonplaceholder, z filtrowaniem, szczegółami i ulubionymi. Zbudowana na Angular 20, standalone components, signals, zoneless change detection i TailwindCSS v4.
 
-## Development server
+## Wymagania
+- Node >= 20
+- Angular CLI 20
 
-To start a local development server, run:
-
+## Szybki start
+1. Instalacja zależności
 ```bash
+npm i
+```
+2. Uruchomienie dev servera
+```bash
+npm start
+# lub
 ng serve
 ```
+Aplikacja: http://localhost:4200
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+3. Build produkcyjny
 ```bash
-ng generate component component-name
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Funkcjonalności
+- Lista postów z API: https://jsonplaceholder.typicode.com/posts
+- Szczegóły posta: treść, autor (/users/:id), komentarze (/posts/:id/comments)
+- Filtrowanie:
+  - Pełnotekstowe po tytule/treści (frontend)
+  - Po użytkowniku (userId) – zapytanie do API przez query param
+  - Tylko ulubione – lokalny stan
+- Ulubione: toggle; zapis ID w stanie (w pamięci)
+- Cache: posty przechowywane w singleton service (signals store); re-fetch tylko przy zmianie userId lub refreshu
+- Loader: skeletony
+- Responsywność: mobile/desktop (Tailwind)
+- Animacje: nowa składnia `animate.enter` / `animate.leave` na elementach listy i skeletonach
 
-```bash
-ng generate --help
+## Architektura i stan
+- Standalone components + lazy routes
+- Zoneless change detection (`provideZonelessChangeDetection`)
+- Signals store (singleton) z cache w Map
+- RxJS + HttpClient do asynchroniczności
+- Tailwind v4 (`@import "tailwindcss"` + `@theme` w `src/styles.css`)
+
+Struktura folderów (wycinek):
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
+src/app/
+  app.config.ts
+  app.routes.ts
+  core/
+    models/
+      post.model.ts
+    features/
+      posts/
+        posts.routes.ts
+        data-access/
+          posts.api.ts
+          posts.store.ts
+        pages/
+          posts-list/
+            posts-list.page.ts
+          post-details/
+            post-details.page.ts
 ```
+Pełny plan i uzasadnienie: docs/PLANNING.md
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Trasy
+- `/posts` – lista z filtrami
+- `/posts/gantt` – widok Gantta (bonus)
+- `/posts/:id` – szczegóły posta
 
-## Running unit tests
+## Jak działa filtrowanie i cache
+- searchText i favoritesOnly są stosowane frontowo na już pobranej liście
+- userId zmienia klucz cache i powoduje (o ile brak w cache) pobranie z API `/posts?userId=:id`
+- Cache kluczowany jako `all` lub `user:{id}`
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Modele i API
+- Modele: `Post`, `User`, `Comment` (src/app/core/models/post.model.ts)
+- PostsApi: `getPosts`, `getPost`, `getUser`, `getComments`
 
-```bash
-ng test
-```
+## Komendy
+- `npm start` – uruchomienie dev
+- `npm run build` – build prod
+- `ng test` – testy (brak w tym MVP)
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Dalszy rozwój (pomysły)
+- Osobna zakładka Ulubione i Gantt (bonus)
+- Persist ulubionych w localStorage
+- Testy jednostkowe dla store i api
+- Lepsze animacje enter/leave i skeleton components
