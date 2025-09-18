@@ -52,17 +52,19 @@ src/app/
   core/
     models/
       post.model.ts
-    features/
-      posts/
-        posts.routes.ts
-        data-access/
-          posts.api.ts
-          posts.store.ts
-        pages/
-          posts-list/
-            posts-list.page.ts
-          post-details/
-            post-details.page.ts
+  features/
+    posts/
+      posts.routes.ts
+      data-access/
+        posts.api.ts
+        posts.store.ts
+      pages/
+        posts-list/
+          posts-list.page.ts
+        post-details/
+          post-details.page.ts
+        gantt/
+          gantt.page.ts
 ```
 Pełny plan i uzasadnienie: docs/PLANNING.md
 
